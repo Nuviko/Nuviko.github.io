@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+  <title>Nuviko · Retorno do Mercado Livre</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,Segoe UI,sans-serif;background:#120d1c;color:#f7f0ff}
+    body{min-height:100vh;display:grid;place-items:center;margin:0;padding:24px;box-sizing:border-box}
+    main{width:min(100%,470px);padding:32px;border:1px solid #563670;border-radius:18px;background:#20152e;box-shadow:0 24px 70px #0008}
+    .brand{color:#cc9cff;font-weight:800;letter-spacing:.12em;text-transform:uppercase;font-size:12px}
+    h1{font-size:28px;line-height:1.15;margin:15px 0}
+    p{line-height:1.5;color:#e2d5ed}
+    button{padding:13px 18px;border:0;border-radius:9px;background:#bb83f4;color:#1a1028;font:inherit;font-weight:750;cursor:pointer}
+    button:disabled{opacity:.55;cursor:default}
+    small{display:block;margin-top:14px;color:#b7a4c8;line-height:1.4}
+  </style>
+</head>
+<body>
+  <main>
+    <div class="brand">Nuviko</div>
+    <h1>Autorize o Mercado Livre</h1>
+    <p id="message">Verificando o retorno da autorização…</p>
+    <button id="copy" type="button" hidden>Copiar endereço de retorno</button>
+    <small>Depois, volte à aba Automação do Nuviko e cole o endereço no campo “Endereço completo de retorno”. Esta página não envia o código a outros serviços.</small>
+  </main>
+  <script>
+    const params=new URLSearchParams(location.search);
+    const message=document.getElementById('message');
+    const button=document.getElementById('copy');
+    if(params.has('error')) message.textContent='O Mercado Livre não autorizou a conexão. Volte ao Nuviko e tente novamente.';
+    else if(params.has('code')&&params.has('state')){
+      message.textContent='Autorização recebida. Copie o endereço de retorno para concluir a conexão no Nuviko.';
+      button.hidden=false;
+      button.addEventListener('click',async()=>{
+        try{
+          await navigator.clipboard.writeText(location.href);
+          message.textContent='Endereço copiado. Volte ao Nuviko e cole no campo de retorno.';
+          button.disabled=true;
+          history.replaceState({},'',location.pathname);
+        }catch{message.textContent='A cópia automática falhou. Copie o endereço completo da barra do navegador e cole no Nuviko.'}
+      });
+    }else message.textContent='Página de retorno pronta. Inicie a autorização pelo painel Nuviko.';
+  </script>
+</body>
+</html>
